@@ -1,0 +1,51 @@
+# editors / tooling
+.claude/
+.vscode/
+.idea/
+
+# dependencies
+node_modules/
+
+# Expo / EAS
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.eas/
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env.local
+.env*.local
+.env.development
+.env.production
+
+# typescript
+*.tsbuildinfo
+
+example
+
+# generated native folders
+/ios
+/android
