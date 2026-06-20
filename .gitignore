@@ -1,0 +1,10 @@
+
+# Local-only (not committed)
+.claude/
+refs/
+tools/
+.env
+figma/
+CLAUDE.md
+AGENTS.md
+PIJACA_PLUS_BUILD.md
