@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" font-family="Inter, Arial, sans-serif">
+<rect width="640" height="360" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+<text x="72" y="34" font-size="18" font-weight="600" fill="#1f2937">Predviđeni višak (kg)</text>
+<line x1="72" y1="56.0" x2="616" y2="56.0" stroke="#eef0ee"/>
+<text x="62" y="60.0" font-size="12" fill="#6b7280" text-anchor="end">15</text>
+<line x1="72" y1="186.0" x2="616" y2="186.0" stroke="#eef0ee"/>
+<text x="62" y="190.0" font-size="12" fill="#6b7280" text-anchor="end">8</text>
+<line x1="72" y1="316.0" x2="616" y2="316.0" stroke="#eef0ee"/>
+<text x="62" y="320.0" font-size="12" fill="#6b7280" text-anchor="end">0</text>
+<rect x="89.5" y="246.7" width="42.7" height="69.3" rx="5" fill="#66bb6a"/>
+<text x="110.9" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Pon</text>
+<rect x="167.2" y="212.0" width="42.7" height="104.0" rx="5" fill="#66bb6a"/>
+<text x="188.6" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Uto</text>
+<rect x="244.9" y="229.3" width="42.7" height="86.7" rx="5" fill="#66bb6a"/>
+<text x="266.3" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Sre</text>
+<rect x="322.6" y="264.0" width="42.7" height="52.0" rx="5" fill="#a5d6a7"/>
+<text x="344.0" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Čet</text>
+<rect x="400.3" y="281.3" width="42.7" height="34.7" rx="5" fill="#a5d6a7"/>
+<text x="421.7" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Pet</text>
+<rect x="478.1" y="108.0" width="42.7" height="208.0" rx="5" fill="#2e7d32"/>
+<text x="499.4" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Sub</text>
+<rect x="555.8" y="177.3" width="42.7" height="138.7" rx="5" fill="#43a047"/>
+<text x="577.1" y="338.0" font-size="12" fill="#6b7280" text-anchor="middle">Ned</text>
+</svg>
