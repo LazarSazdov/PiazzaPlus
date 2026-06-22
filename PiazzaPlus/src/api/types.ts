@@ -21,6 +21,8 @@ export interface Market {
   city: string;
   workHours: string;
   imageKey: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface Product {
@@ -42,7 +44,7 @@ export interface SellerStats {
   totalValue: number;
   series: number[];
   labels: string[];
-  top: { name: string; value: number }[];
+  top: { name: string; value: number; listingId: string | null }[];
 }
 
 export interface VoiceDraft {
@@ -94,6 +96,7 @@ export interface Recipe {
   steps: string[];
   imageKey: string | null;
   aiGenerated: boolean;
+  saved: boolean;
 }
 
 export interface ReceiptItem {
@@ -117,19 +120,23 @@ export interface Prediction {
   day: string;
   series: number[];
   recommended: string;
+  listingId: string | null;
 }
 
 export interface Recipient {
   id: string;
   name: string;
   city: string;
+  note: string | null;
   logoKey: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface Donation {
   id: string;
   recipientId: string;
-  items: { name: string; qty: string }[];
+  items: { name: string; qty: string; value?: number }[];
   estValue: number;
   createdAt: string;
   recipient?: Recipient;

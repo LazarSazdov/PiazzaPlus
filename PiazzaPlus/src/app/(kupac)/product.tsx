@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ApiError } from '@/api/client';
 import { catalogApi, reservationApi } from '@/api/sdk';
-import { Button, Screen, Text, TextInput, TopAppBar, useToast } from '@/components';
+import { Button, ErrorView, Screen, Text, TextInput, TopAppBar, useToast } from '@/components';
 import { img } from '@/lib/images';
 import { rsd } from '@/lib/format';
 import { useAsync } from '@/lib/useAsync';
@@ -14,7 +14,7 @@ import { colors, radii, space, stroke } from '@/theme/tokens';
 export default function ProductDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const toast = useToast();
-  const { data, loading } = useAsync(() => catalogApi.product(id), [id]);
+  const { data, loading, error, reload } = useAsync(() => catalogApi.product(id), [id]);
   const product = data?.product;
 
   const [qty, setQty] = useState('1');
@@ -42,8 +42,10 @@ export default function ProductDetails() {
   return (
     <Screen padded={false}>
       <TopAppBar title="Detalji proizvoda" back />
-      {loading || !product ? (
+      {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: space.xl }} />
+      ) : error || !product ? (
+        <ErrorView message={error ?? 'Proizvod nije pronađen.'} onRetry={reload} />
       ) : (
         <Screen scroll padded contentStyle={{ gap: space.lg }}>
           <View style={styles.header}>

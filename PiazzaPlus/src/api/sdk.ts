@@ -81,6 +81,7 @@ export const recipeApi = {
   get: (id: string) => api<{ recipe: Recipe }>(`/api/recipes/${id}`),
   generate: (ingredients?: string[]) =>
     api<{ recipe: Recipe }>('/api/recipes/generate', { method: 'POST', body: { ingredients } }),
+  toggleSave: (id: string) => api<{ saved: boolean }>(`/api/recipes/${id}/save`, { method: 'POST' }),
 };
 
 // ---- Receipts ----
@@ -106,6 +107,7 @@ export const predictionApi = {
 export const donationApi = {
   recipients: () => api<{ recipients: Recipient[] }>('/api/donations/recipients'),
   list: () => api<{ donations: Donation[] }>('/api/donations'),
+  get: (id: string) => api<{ donation: Donation }>(`/api/donations/${id}`),
   create: (body: { recipientId: string; items?: { name: string; qty: string }[]; estValue?: number }) =>
     api<{ donation: Donation }>('/api/donations', { method: 'POST', body }),
   chatbot: (message: string) =>

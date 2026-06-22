@@ -32,7 +32,7 @@ router.get(
 
 const createSchema = z.object({
   recipientId: z.string().min(1),
-  items: z.array(z.object({ name: z.string(), qty: z.string() })).optional(),
+  items: z.array(z.object({ name: z.string(), qty: z.string(), value: z.number().optional() })).optional(),
   estValue: z.number().optional(),
 });
 
@@ -95,6 +95,20 @@ router.get(
         donations: donations.map(publicDonation),
       },
     });
+  })
+);
+
+// GET /api/donations/:id  (single donation detail) — registered last so it does not
+// shadow the static GET routes above (/recipients, /report).
+router.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const donation = await prisma.donation.findUnique({
+      where: { id: req.params.id },
+      include: { recipient: true },
+    });
+    if (!donation) return res.status(404).json({ error: 'Donacija nije pronađena.' });
+    res.json({ donation: publicDonation(donation) });
   })
 );
 

@@ -29,12 +29,19 @@ export default function Predikcije() {
         notificationsHref="/(prodavac)/notifications"
         settingsHref="/(prodavac)/settings"
       />
-      {loading || !current ? (
+      {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: space.xl }} />
+      ) : !current ? (
+        <View style={{ padding: space.xl, gap: space.md }}>
+          <Text variant="body" color="textMuted">
+            Nemate aktivnih oglasa, pa nema ni predikcija viška. Postavite oglas da biste dobili procene.
+          </Text>
+          <Button label="Postavi oglas" onPress={() => router.push('/(prodavac)/postavljanje')} />
+        </View>
       ) : (
         <Screen scroll padded contentStyle={{ gap: space.lg }}>
           <Text variant="body" color="textMuted">
-            Procena viška proizvoda po danima na osnovu istorije prodaje.
+            Procena viška proizvoda po danima, izvedena iz vaših oglasa.
           </Text>
 
           <Dropdown

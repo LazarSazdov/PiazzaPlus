@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -19,13 +19,12 @@ interface Bubble {
   text: string;
 }
 
-const GREETING: Bubble = {
-  from: 'bot',
-  text: 'Zdravo! Ovde Prihvatilište Narodna kuhinja NS. Kako možemo da pomognemo oko vaše donacije?',
-};
-
 export default function Chatbot() {
-  const [messages, setMessages] = useState<Bubble[]>([GREETING]);
+  const { name } = useLocalSearchParams<{ name?: string }>();
+  const recipient = name || 'Narodna kuhinja Novi Sad';
+  const [messages, setMessages] = useState<Bubble[]>([
+    { from: 'bot', text: `Zdravo! Ovde ${recipient}. Kako možemo da pomognemo oko vaše donacije?` },
+  ]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -49,7 +48,7 @@ export default function Chatbot() {
 
   return (
     <Screen padded={false}>
-      <TopAppBar title="Prihvatilište" back />
+      <TopAppBar title={recipient} back />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           ref={scrollRef}

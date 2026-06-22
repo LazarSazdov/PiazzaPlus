@@ -2,21 +2,23 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { listingApi } from '@/api/sdk';
-import { Button, ImagePlaceholder, Screen, Text, TopAppBar } from '@/components';
+import { Button, ErrorView, ImagePlaceholder, Screen, Text, TopAppBar } from '@/components';
 import { rsd } from '@/lib/format';
 import { useAsync } from '@/lib/useAsync';
 import { colors, radii, space } from '@/theme/tokens';
 
 export default function DetaljiOglasa() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, loading } = useAsync(() => listingApi.get(id), [id]);
+  const { data, loading, error, reload } = useAsync(() => listingApi.get(id), [id]);
   const listing = data?.listing;
 
   return (
     <Screen padded={false}>
       <TopAppBar title="Detalji oglasa" back />
-      {loading || !listing ? (
+      {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: space.xl }} />
+      ) : error || !listing ? (
+        <ErrorView message={error ?? 'Oglas nije pronađen.'} onRetry={reload} />
       ) : (
         <Screen scroll padded contentStyle={{ gap: space.lg }}>
           {listing.imageUrl ? (

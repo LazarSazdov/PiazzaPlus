@@ -38,7 +38,7 @@ export default function History() {
               title={item.store}
               subtitle={`${item.date} · ${rsd(item.total)}`}
               imageKey={item.imageKey}
-              onPress={() => router.push(`/(kupac)/receipt?id=${item.id}`)}
+              onPress={() => router.push(`/(kupac)/kupovina-detalji?id=${item.id}`)}
             />
           )}
         />

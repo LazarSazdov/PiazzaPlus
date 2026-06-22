@@ -32,11 +32,12 @@ export function publicListing(l: Listing) {
   return { ...l, finalPrice };
 }
 
-export function publicRecipe(r: Recipe) {
+export function publicRecipe(r: Recipe, saved = false) {
   return {
     ...r,
     ingredients: jsonField<string[]>(r.ingredients, []),
     steps: jsonField<string[]>(r.steps, []),
+    saved,
   };
 }
 
@@ -45,7 +46,7 @@ export function publicReceipt(r: Receipt) {
 }
 
 export function publicDonation(d: Donation & { recipient?: Recipient }) {
-  return { ...d, items: jsonField<{ name: string; qty: string }[]>(d.items, []) };
+  return { ...d, items: jsonField<{ name: string; qty: string; value?: number }[]>(d.items, []) };
 }
 
 export function publicPrediction(p: Prediction) {

@@ -12,10 +12,14 @@ export default function ProdavacNotifications() {
   const notifications = data?.notifications ?? [];
 
   const clearAll = async () => {
-    await notificationApi.clear('PRODAVAC');
-    setData({ notifications: [] });
-    toast.show('Obaveštenja obrisana.', 'info');
-    router.back();
+    try {
+      await notificationApi.clear('PRODAVAC');
+      setData({ notifications: [] });
+      toast.show('Obaveštenja obrisana.', 'info');
+      router.back();
+    } catch {
+      toast.show('Greška pri brisanju obaveštenja.', 'error');
+    }
   };
 
   return (

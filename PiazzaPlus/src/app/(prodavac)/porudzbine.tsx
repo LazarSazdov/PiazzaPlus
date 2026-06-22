@@ -61,7 +61,7 @@ export default function Porudzbine() {
                 </Text>
               </View>
               <Text variant="subhead" color="textMuted">
-                {r.buyer?.name ?? 'Kupac'} · {r.quantity} {r.product?.unit} · {rsd(r.total)}
+                {r.buyer?.name ?? 'Kupac'} · {r.quantity} {r.product?.unit ?? ''} · {rsd(r.total)}
               </Text>
               {r.status === 'NA_CEKANJU' ? (
                 <View style={styles.actions}>

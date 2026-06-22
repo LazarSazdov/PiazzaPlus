@@ -83,6 +83,7 @@ export default function Glasovni() {
 
         <View style={{ gap: space.md, width: '100%' }}>
           <Button label="Postavi oglas" onPress={() => router.push('/(prodavac)/potvrda-oglasa')} disabled={!transcript} />
+          <Button label="Dodaj sliku" variant="secondary" onPress={() => router.push('/(prodavac)/dodavanje-slike')} disabled={!transcript} />
           <Button label="Ponovi" variant="secondary" onPress={() => { setTranscript(''); }} />
         </View>
       </Screen>

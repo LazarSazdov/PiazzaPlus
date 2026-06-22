@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { predictionApi } from '@/api/sdk';
-import { BarChart, Button, Screen, Text, TopAppBar } from '@/components';
+import { BarChart, Button, ErrorView, Screen, Text, TopAppBar } from '@/components';
 import { useAsync } from '@/lib/useAsync';
 import { colors, radii, space } from '@/theme/tokens';
 
@@ -10,7 +10,7 @@ const DAYS = ['Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub', 'Ned'];
 
 export default function PredikcijaDetalji() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, loading } = useAsync(() => predictionApi.get(id), [id]);
+  const { data, loading, error, reload } = useAsync(() => predictionApi.get(id), [id]);
   const prediction = data?.prediction;
 
   const peak = prediction ? DAYS[prediction.series.indexOf(Math.max(...prediction.series))] : '';
@@ -18,8 +18,10 @@ export default function PredikcijaDetalji() {
   return (
     <Screen padded={false}>
       <TopAppBar title="Detalji predikcije" back />
-      {loading || !prediction ? (
+      {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: space.xl }} />
+      ) : error || !prediction ? (
+        <ErrorView message={error ?? 'Predikcija nije pronađena.'} onRetry={reload} />
       ) : (
         <Screen scroll padded contentStyle={{ gap: space.lg }}>
           <Text variant="title3" color="text">
@@ -34,7 +36,10 @@ export default function PredikcijaDetalji() {
             </Text>
           </View>
 
-          <Button label="Prilagodi ponudu" onPress={() => router.push('/(prodavac)/postavljanje')} />
+          <Button
+            label="Prilagodi ponudu"
+            onPress={() => router.push(`/(prodavac)/podesi-snizenje?id=${prediction.listingId ?? id}`)}
+          />
         </Screen>
       )}
     </Screen>

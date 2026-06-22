@@ -67,8 +67,16 @@ router.get(
 
     const byProduct = new Map<string, number>();
     for (const s of sales) byProduct.set(s.product.name, (byProduct.get(s.product.name) ?? 0) + s.total);
+
+    // Map each top product to one of the seller's listings (by name) so the UI can drill in.
+    const listings = await prisma.listing.findMany({ where: { sellerId: req.userId! } });
+    const listingFor = (name: string) => {
+      const n = name.toLowerCase();
+      return listings.find((l) => l.title.toLowerCase().includes(n) || n.includes(l.title.toLowerCase().split(' ')[0]))?.id ?? null;
+    };
+
     const top = [...byProduct.entries()]
-      .map(([name, value]) => ({ name, value }))
+      .map(([name, value]) => ({ name, value, listingId: listingFor(name) }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 3);
 

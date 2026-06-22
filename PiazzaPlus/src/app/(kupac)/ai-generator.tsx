@@ -5,14 +5,18 @@ import { ApiError } from '@/api/client';
 import { recipeApi } from '@/api/sdk';
 import { Recipe } from '@/api/types';
 import { Button, Card, Screen, SegmentedTabs, Text, TopAppBar, useToast } from '@/components';
+import { allergyLabel } from '@/lib/format';
 import { useAsync } from '@/lib/useAsync';
+import { useAuth } from '@/store/auth';
 import { colors, space } from '@/theme/tokens';
 
 export default function AiGenerator() {
   const toast = useToast();
-  const { data, loading, reload, setData } = useAsync(() => recipeApi.list('ai'), []);
+  const { user } = useAuth();
+  const { data, loading, setData } = useAsync(() => recipeApi.list('ai'), []);
   const [generating, setGenerating] = useState(false);
   const recipes: Recipe[] = data?.recipes ?? [];
+  const allergies = user?.allergies ?? [];
 
   const onGenerate = async () => {
     setGenerating(true);
@@ -43,6 +47,11 @@ export default function AiGenerator() {
         <Text variant="body" color="textMuted">
           Generišite recept na osnovu sezonskih namirnica dostupnih na pijaci.
         </Text>
+        {allergies.length > 0 ? (
+          <Text variant="footnote" color="primary">
+            Recepti se prilagođavaju vašim alergijama: {allergies.map(allergyLabel).join(', ')}.
+          </Text>
+        ) : null}
         <Button label="Generiši novi recept" onPress={onGenerate} loading={generating} />
 
         <Text variant="headline" color="text">
@@ -50,6 +59,10 @@ export default function AiGenerator() {
         </Text>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
+        ) : recipes.length === 0 ? (
+          <Text variant="body" color="textMuted">
+            Još nema generisanih recepata. Pritisnite dugme iznad.
+          </Text>
         ) : (
           <View style={styles.grid}>
             {recipes.map((r) => (

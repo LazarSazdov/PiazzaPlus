@@ -16,6 +16,8 @@ interface TopAppBarProps {
   profileHref?: Href;
   notificationsHref?: Href;
   settingsHref?: Href;
+  /** Optional custom trailing action (e.g. a save/heart toggle). */
+  action?: { icon: keyof typeof Feather.glyphMap; onPress: () => void; color?: string; label?: string };
 }
 
 /** Full-width 96dp app bar with bottom divider (figma/MEASUREMENTS.md §Top App Bar). */
@@ -26,6 +28,7 @@ export function TopAppBar({
   profileHref,
   notificationsHref,
   settingsHref,
+  action,
 }: TopAppBarProps) {
   const insets = useSafeAreaInsets();
   const showBack = back ?? !avatarKey;
@@ -55,6 +58,11 @@ export function TopAppBar({
       </Text>
 
       <View style={styles.actions}>
+        {action ? (
+          <Pressable onPress={action.onPress} style={styles.hit} accessibilityLabel={action.label ?? 'Akcija'}>
+            <Feather name={action.icon} size={24} color={action.color ?? colors.text} />
+          </Pressable>
+        ) : null}
         {notificationsHref ? (
           <Pressable
             onPress={() => router.push(notificationsHref)}

@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { recipeApi } from '@/api/sdk';
 import { Card, Screen, SegmentedTabs, Text, TopAppBar } from '@/components';
@@ -8,8 +9,11 @@ import { colors, space } from '@/theme/tokens';
 
 export default function Recepti() {
   const { user } = useAuth();
-  const { data, loading } = useAsync(() => recipeApi.list('saved'), []);
+  const { data, loading, reload } = useAsync(() => recipeApi.list('saved'), []);
   const recipes = data?.recipes ?? [];
+
+  // Refresh saved list when returning from a recipe (save/unsave may have changed it).
+  useFocusEffect(useCallback(() => { reload(); }, [reload]));
 
   return (
     <Screen padded={false}>
@@ -34,6 +38,10 @@ export default function Recepti() {
 
         {loading ? (
           <ActivityIndicator color={colors.primary} />
+        ) : recipes.length === 0 ? (
+          <Text variant="body" color="textMuted">
+            Još nemate sačuvanih recepata.
+          </Text>
         ) : (
           <View style={styles.grid}>
             {recipes.map((r) => (

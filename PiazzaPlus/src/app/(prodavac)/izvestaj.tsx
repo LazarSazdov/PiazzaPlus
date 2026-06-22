@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { donationApi } from '@/api/sdk';
 import { Button, Screen, Text, TopAppBar, useToast } from '@/components';
 import { img } from '@/lib/images';
@@ -38,7 +39,7 @@ export default function Izvestaj() {
             </Text>
           ) : (
             report.donations.map((d) => (
-              <View key={d.id} style={styles.row}>
+              <Pressable key={d.id} style={styles.row} onPress={() => router.push(`/(prodavac)/donacija-detalji?id=${d.id}`)}>
                 <Image source={img(d.recipient?.logoKey)} style={styles.logo} contentFit="contain" />
                 <View style={{ flex: 1 }}>
                   <Text variant="body" color="text">
@@ -51,12 +52,12 @@ export default function Izvestaj() {
                 <Text variant="subhead" color="primary">
                   {rsd(d.estValue)}
                 </Text>
-              </View>
+              </Pressable>
             ))
           )}
 
           <View style={{ gap: space.md }}>
-            <Button label="Preuzmi PDF" onPress={() => toast.show('Izveštaj je preuzet (PDF).', 'success')} />
+            <Button label="Preuzmi PDF" onPress={() => router.push('/(prodavac)/potvrda-preuzimanja')} />
             <Button label="Pošalji poreskoj upravi" variant="secondary" onPress={() => toast.show('Izveštaj poslat poreskoj upravi.', 'success')} />
           </View>
         </Screen>

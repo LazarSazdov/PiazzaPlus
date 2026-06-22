@@ -20,6 +20,7 @@ async function main() {
   await prisma.reservation.deleteMany();
   await prisma.receipt.deleteMany();
   await prisma.listing.deleteMany();
+  await prisma.savedRecipe.deleteMany();
   await prisma.recipe.deleteMany();
   await prisma.prediction.deleteMany();
   await prisma.product.deleteMany();
@@ -55,11 +56,15 @@ async function main() {
     },
   });
 
+  // Markets with real Novi Sad coordinates (used by the OSM heatmap).
   const market = await prisma.market.create({
-    data: { name: 'Najlon pijaca', city: 'Novi Sad', workHours: '06:00 - 14:00', imageKey: 'pijaca' },
+    data: { name: 'Najlon pijaca', city: 'Novi Sad', workHours: '06:00 - 14:00', imageKey: 'pijaca', lat: 45.2671, lng: 19.8335 },
   });
   await prisma.market.create({
-    data: { name: 'Riblja pijaca', city: 'Novi Sad', workHours: '07:00 - 15:00', imageKey: 'pijaca' },
+    data: { name: 'Riblja pijaca', city: 'Novi Sad', workHours: '07:00 - 15:00', imageKey: 'pijaca', lat: 45.2546, lng: 19.8462 },
+  });
+  await prisma.market.create({
+    data: { name: 'Limanska pijaca', city: 'Novi Sad', workHours: '06:00 - 14:00', imageKey: 'pijaca', lat: 45.2417, lng: 19.8290 },
   });
 
   // Catalog products, owned by the seller (Miroslav).
@@ -89,21 +94,29 @@ async function main() {
     { title: 'Paprikaš', imageKey: 'recipe_paprikas', ingredients: ['piletina - 800g', 'paprika - 3 kom', 'luk - 2 kom', 'paradajz'], steps: ['Propržite luk.', 'Dodajte meso i papriku.', 'Dinstajte uz dodatak vode 45 min.'], ai: true },
     { title: 'Čorba od paradajza', imageKey: 'recipe_paradajz_corba', ingredients: ['paradajz - 1kg', 'šargarepa - 2 kom', 'začini'], steps: ['Skuvajte povrće.', 'Izblendajte.', 'Začinite i poslužite toplo.'], ai: true },
   ];
+  const createdRecipes = [];
   for (const r of recipes) {
-    await prisma.recipe.create({
-      data: {
-        title: r.title,
-        description: 'Tradicionalni domaći recept.',
-        ingredients: JSON.stringify(r.ingredients),
-        steps: JSON.stringify(r.steps),
-        imageKey: r.imageKey,
-        aiGenerated: r.ai ?? false,
-        ownerId: r.ai ? ana.id : null,
-      },
-    });
+    createdRecipes.push(
+      await prisma.recipe.create({
+        data: {
+          title: r.title,
+          description: 'Tradicionalni domaći recept.',
+          ingredients: JSON.stringify(r.ingredients),
+          steps: JSON.stringify(r.steps),
+          imageKey: r.imageKey,
+          aiGenerated: r.ai ?? false,
+          ownerId: r.ai ? ana.id : null,
+        },
+      })
+    );
   }
 
-  // Seller listings (ads the seller manages)
+  // Ana has saved a few recipes (populates her "Sačuvani" tab).
+  for (const r of createdRecipes.filter((x) => !x.aiGenerated).slice(0, 3)) {
+    await prisma.savedRecipe.create({ data: { userId: ana.id, recipeId: r.id } });
+  }
+
+  // Seller listings (ads the seller manages) - surplus predictions are derived from these.
   await prisma.listing.create({
     data: { sellerId: miroslav.id, title: 'Paradajz - veleprodaja', description: 'Sveže ubran, idealan za zimnicu.', category: 'Povrće', quantity: '50 kg', price: 160, imageKey: 'product_paradajz', createdAt: daysAgo(4) },
   });
@@ -151,44 +164,48 @@ async function main() {
     },
   });
 
-  // Buyer purchase history (a saved receipt)
+  // Buyer purchase history (a saved receipt - matches the "Detalji kupovine" screen)
   await prisma.receipt.create({
     data: {
       ownerId: ana.id,
-      store: 'Najlon pijaca',
-      date: '14.06.2026.',
-      total: 1290,
+      store: 'Limanska pijaca',
+      date: '12.06.2026.',
+      total: 360,
       items: JSON.stringify([
-        { name: 'Paradajz', price: 360 },
-        { name: 'Jabuke', price: 280 },
-        { name: 'Med', price: 650 },
+        { name: 'Paradajz 1 kg', price: 120 },
+        { name: 'Jabuke 1 kg', price: 140 },
+        { name: 'Mladi luk 2 veze', price: 100 },
       ]),
       imageKey: 'racun',
     },
   });
 
-  // Surplus predictions (forecast data)
-  await prisma.prediction.create({
-    data: { productName: 'Paradajz', day: 'Petak', series: JSON.stringify([4, 6, 5, 8, 12, 7, 3]), recommended: 'Predlog: snizite cenu za 15% u petak da izbegnete višak.' },
-  });
-  await prisma.prediction.create({
-    data: { productName: 'Jabuke', day: 'Subota', series: JSON.stringify([2, 3, 4, 5, 6, 9, 4]), recommended: 'Predlog: pripremite donaciju viška u subotu uveče.' },
-  });
+  // Surplus predictions are computed live from the seller's listings (see
+  // server/src/routes/predictions.ts) - no static rows needed.
 
-  // Donation recipients + one recorded donation
+  // Donation recipients (match the "Izbor primaoca" screen) with Novi Sad coordinates.
   const shelter = await prisma.recipient.create({
-    data: { name: 'Narodna kuhinja NS', city: 'Novi Sad', logoKey: 'donation' },
+    data: { name: 'Narodna kuhinja Novi Sad', city: 'Novi Sad', note: 'Još 40 obroka potrebno danas', logoKey: 'donation', lat: 45.2560, lng: 19.8400 },
   });
   await prisma.recipient.create({
-    data: { name: 'Prihvatilište Sigurna kuća', city: 'Novi Sad', logoKey: 'don2' },
+    data: { name: 'Crveni krst Novi Sad', city: 'Novi Sad', note: 'Prihvata voće i povrće', logoKey: 'don', lat: 45.2480, lng: 19.8520 },
   });
+  await prisma.recipient.create({
+    data: { name: 'Prihvatilište Sigurna kuća', city: 'Novi Sad', note: 'Hitno: hleb, mleko, jaja', logoKey: 'don2', lat: 45.2620, lng: 19.8300 },
+  });
+
+  // One recorded donation (matches the "Detalji donacije" screen)
   await prisma.donation.create({
     data: {
       donorId: miroslav.id,
       recipientId: shelter.id,
-      items: JSON.stringify([{ name: 'Paradajz', qty: '10 kg' }, { name: 'Krompir', qty: '15 kg' }]),
-      estValue: 3000,
-      createdAt: daysAgo(7),
+      items: JSON.stringify([
+        { name: 'Paradajz', qty: '12 kg', value: 1500 },
+        { name: 'Hleb', qty: '8 kom', value: 640 },
+        { name: 'Jabuke', qty: '5 kg', value: 600 },
+      ]),
+      estValue: 2740,
+      createdAt: daysAgo(10),
     },
   });
 

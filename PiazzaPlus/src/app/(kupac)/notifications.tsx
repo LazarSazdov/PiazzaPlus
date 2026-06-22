@@ -12,10 +12,14 @@ export default function KupacNotifications() {
   const notifications = data?.notifications ?? [];
 
   const clearAll = async () => {
-    await notificationApi.clear('KUPAC');
-    setData({ notifications: [] });
-    toast.show('Obaveštenja obrisana.', 'info');
-    router.back();
+    try {
+      await notificationApi.clear('KUPAC');
+      setData({ notifications: [] });
+      toast.show('Obaveštenja obrisana.', 'info');
+      router.back();
+    } catch {
+      toast.show('Greška pri brisanju obaveštenja.', 'error');
+    }
   };
 
   return (

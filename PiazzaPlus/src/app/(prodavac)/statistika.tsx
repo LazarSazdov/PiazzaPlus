@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { statsApi } from '@/api/sdk';
@@ -55,7 +56,14 @@ export default function Statistika() {
             ) : (
               <View style={styles.list}>
                 {stats.top.map((t, i) => (
-                  <ListRow key={t.name} title={`${i + 1}. ${t.name}`} subtitle={rsd(t.value)} icon="trending-up" chevron={false} />
+                  <ListRow
+                    key={t.name}
+                    title={`${i + 1}. ${t.name}`}
+                    subtitle={rsd(t.value)}
+                    icon="trending-up"
+                    chevron={!!t.listingId}
+                    onPress={t.listingId ? () => router.push(`/(prodavac)/oglas?id=${t.listingId}`) : undefined}
+                  />
                 ))}
               </View>
             )}

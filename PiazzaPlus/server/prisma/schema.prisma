@@ -30,7 +30,8 @@ model User {
   listings      Listing[]
   ownedProducts Product[]      @relation("SellerProducts")
   receipts      Receipt[]
-  savedRecipes  Recipe[]
+  ownedRecipes  Recipe[]
+  savedRecipes  SavedRecipe[]
   notifications Notification[]
   donations     Donation[]
 }
@@ -41,6 +42,8 @@ model Market {
   city      String
   workHours String // e.g. "07:00 - 14:00"
   imageKey  String?
+  lat       Float?
+  lng       Float?
   products  Product[]
 }
 
@@ -92,15 +95,28 @@ model Listing {
 }
 
 model Recipe {
-  id          String  @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
-  description String  @default("")
-  ingredients String  @default("[]") // string[]
-  steps       String  @default("[]") // string[]
+  description String        @default("")
+  ingredients String        @default("[]") // string[]
+  steps       String        @default("[]") // string[]
   imageKey    String?
-  aiGenerated Boolean @default(false)
-  owner       User?   @relation(fields: [ownerId], references: [id])
+  aiGenerated Boolean       @default(false)
+  owner       User?         @relation(fields: [ownerId], references: [id])
   ownerId     String?
+  saves       SavedRecipe[]
+}
+
+// A user's saved/liked recipe (works for both seed and AI recipes).
+model SavedRecipe {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, recipeId])
 }
 
 model Receipt {
@@ -119,7 +135,10 @@ model Recipient {
   id        String     @id @default(cuid())
   name      String
   city      String
+  note      String?
   logoKey   String?
+  lat       Float?
+  lng       Float?
   donations Donation[]
 }
 
@@ -135,12 +154,13 @@ model Donation {
 }
 
 model Prediction {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   productName String
   day         String // day of week
   // JSON array of 7 numbers (predicted surplus per day)
-  series      String @default("[]")
-  recommended String @default("")
+  series      String  @default("[]")
+  recommended String  @default("")
+  listingId   String? // the seller listing this prediction maps to (for "Prilagodi ponudu")
 }
 
 model Notification {

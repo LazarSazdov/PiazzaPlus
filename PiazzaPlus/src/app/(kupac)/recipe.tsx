@@ -1,21 +1,52 @@
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ApiError } from '@/api/client';
 import { recipeApi } from '@/api/sdk';
-import { Button, ImagePlaceholder, Screen, Text, TopAppBar } from '@/components';
+import { Button, ErrorView, ImagePlaceholder, Screen, Text, TopAppBar, useToast } from '@/components';
 import { useAsync } from '@/lib/useAsync';
 import { colors, space } from '@/theme/tokens';
 
 export default function RecipeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, loading } = useAsync(() => recipeApi.get(id), [id]);
+  const toast = useToast();
+  const { data, loading, error, reload } = useAsync(() => recipeApi.get(id), [id]);
   const recipe = data?.recipe;
+
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    if (recipe) setSaved(recipe.saved);
+  }, [recipe]);
+
+  const toggleSave = async () => {
+    const next = !saved;
+    setSaved(next); // optimistic
+    try {
+      const { saved: confirmed } = await recipeApi.toggleSave(id);
+      setSaved(confirmed);
+      toast.show(confirmed ? 'Sačuvano u recepte.' : 'Uklonjeno iz sačuvanih.', confirmed ? 'success' : 'info');
+    } catch (e) {
+      setSaved(!next); // revert
+      toast.show(e instanceof ApiError ? e.message : 'Greška.', 'error');
+    }
+  };
 
   return (
     <Screen padded={false}>
-      <TopAppBar title="Recept" back />
-      {loading || !recipe ? (
+      <TopAppBar
+        title="Recept"
+        back
+        action={
+          recipe
+            ? { icon: 'heart', color: saved ? colors.error : colors.textMuted, onPress: toggleSave, label: 'Sačuvaj recept' }
+            : undefined
+        }
+      />
+      {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: space.xl }} />
+      ) : error || !recipe ? (
+        <ErrorView message={error ?? 'Recept nije pronađen.'} onRetry={reload} />
       ) : (
         <Screen scroll padded contentStyle={{ gap: space.lg }}>
           <ImagePlaceholder imageKey={recipe.imageKey} height={190} radius={16} />

@@ -1,18 +1,24 @@
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { donationApi } from '@/api/sdk';
-import { Button, Screen, Text, TopAppBar } from '@/components';
-import { images, img } from '@/lib/images';
+import { Button, OsmMap, Screen, Text, TopAppBar } from '@/components';
+import { img } from '@/lib/images';
 import { useAsync } from '@/lib/useAsync';
 import { useAuth } from '@/store/auth';
 import { colors, radii, space } from '@/theme/tokens';
+
+const NOVI_SAD = { lat: 45.2517, lng: 19.8369 };
 
 export default function Donacije() {
   const { user } = useAuth();
   const { data, loading } = useAsync(() => donationApi.recipients(), []);
   const recipients = data?.recipients ?? [];
+
+  const markers = recipients
+    .filter((r) => r.lat != null && r.lng != null)
+    .map((r) => ({ lat: r.lat!, lng: r.lng!, title: r.name, color: colors.error }));
 
   return (
     <Screen padded={false}>
@@ -28,29 +34,33 @@ export default function Donacije() {
           Donirajte višak proizvoda lokalnim prihvatilištima i smanjite bacanje hrane.
         </Text>
 
-        <Image source={images.map_prihvatilista} style={styles.map} contentFit="cover" />
+        <OsmMap center={NOVI_SAD} zoom={13} markers={markers} style={styles.map} />
 
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : (
           recipients.map((r) => (
-            <View key={r.id} style={styles.recipient}>
+            <Pressable
+              key={r.id}
+              style={styles.recipient}
+              onPress={() => router.push(`/(prodavac)/chatbot?recipientId=${r.id}&name=${encodeURIComponent(r.name)}`)}
+            >
               <Image source={img(r.logoKey)} style={styles.logo} contentFit="contain" />
               <View style={{ flex: 1 }}>
                 <Text variant="headline" color="text">
                   {r.name}
                 </Text>
                 <Text variant="footnote" color="textMuted">
-                  {r.city}
+                  {r.note ?? r.city}
                 </Text>
               </View>
-              <Feather name="heart" size={20} color={colors.error} />
-            </View>
+              <Feather name="chevron-right" size={20} color="#9ca3af" />
+            </Pressable>
           ))
         )}
 
         <View style={{ gap: space.md }}>
-          <Button label="Doniraj višak" onPress={() => router.push('/(prodavac)/chatbot')} />
+          <Button label="Doniraj višak" onPress={() => router.push('/(prodavac)/izbor-primaoca')} />
           <Button label="Generiši izveštaj" variant="secondary" onPress={() => router.push('/(prodavac)/izvestaj')} />
         </View>
       </Screen>
@@ -59,7 +69,7 @@ export default function Donacije() {
 }
 
 const styles = StyleSheet.create({
-  map: { width: '100%', height: 200, borderRadius: radii.card, backgroundColor: colors.border },
+  map: { width: '100%', height: 220, borderRadius: radii.card },
   recipient: {
     flexDirection: 'row',
     alignItems: 'center',

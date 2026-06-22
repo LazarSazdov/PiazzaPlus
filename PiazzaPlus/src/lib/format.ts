@@ -5,6 +5,15 @@ export function rsd(amount: number): string {
   return `${grouped} RSD`;
 }
 
+/** Format an ISO timestamp as Serbian date, e.g. "12.06.2026." */
+export function formatDate(iso?: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}.`;
+}
+
 const DIET_LABELS: Record<string, string> = {
   vegetarijanska: 'Vegetarijanska',
   veganska: 'Veganska',
